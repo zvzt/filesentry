@@ -1,93 +1,122 @@
 # FileSentry
 
-A tiny terminal-based static ZIP inspector for macOS.
+A tiny terminal-based static ZIP inspector for **macOS and Windows**.
 
-FileSentry lets you inspect suspicious ZIP archives without extracting or executing their contents. It lists everything inside the archive, flags common macOS autorun/persistence indicators, and opens selected files only as generated plain-text previews.
+FileSentry lets you inspect suspicious ZIP archives without extracting or executing their contents. It lists archive entries, highlights common autorun/persistence and extraction-risk indicators, and opens selected entries only as generated plain-text previews.
 
-## Install
+## macOS
 
-Requires macOS and Python 3.
+Requires Python 3.
 
-```bash
-python3 --version
-```
+Install:
 
-Install FileSentry:
-
-```bash
+~~~bash
 curl -fsSL https://raw.githubusercontent.com/zvzt/filesentry/main/install.sh | zsh
 source ~/.zshrc
-```
+~~~
 
 Run:
 
-```bash
+~~~bash
 sentry
-```
+~~~
 
-Drag a ZIP from Finder into Terminal when FileSentry asks for one, then press Enter.
+The macOS build uses TextEdit for generated safe previews.
+
+## Windows
+
+Requires Windows 10/11 and Python 3.
+
+Install from PowerShell or Windows Terminal:
+
+~~~powershell
+irm https://raw.githubusercontent.com/zvzt/filesentry/main/windows/install.ps1 | iex
+~~~
+
+Run:
+
+~~~powershell
+sentry
+~~~
+
+The Windows build uses Notepad for generated safe previews.
+
+More Windows details: [windows/README.md](windows/README.md)
 
 ## Controls
 
-```text
+~~~text
 Up / Down   Select a file
-Enter       Open a safe TextEdit preview
+Enter       Open a safe text preview
 f           View security findings
 r           Scan another ZIP
 q           Quit
-```
+~~~
 
-## What it checks
+## Core safety model
 
-- ZIP path traversal / extraction escape attempts
-- Symbolic links
-- LaunchAgents and LaunchDaemons
-- launchd RunAtLoad / KeepAlive plists
-- Login-item related commands
-- cron persistence
-- shell startup files
-- Gatekeeper/quarantine-removal commands
-- executable permissions
-- .command scripts
-- suspicious downloader commands
-- large/high-ratio compression entries
-- nested ZIP indicators
+FileSentry performs static inspection only.
 
-## Safe previews
-
-FileSentry does not extract an entry under its original name and does not execute archive contents.
-
-When you press Enter:
-
-- Text is copied into a separate `.txt` preview.
-- Binary data is converted to hexadecimal text.
-- Plists are converted to readable XML when possible.
+- It does not execute archive contents.
+- It does not perform a normal ZIP extraction.
+- Selected text is copied into a generated .txt preview.
+- Selected binary data is rendered as hexadecimal text.
 - Symlink previews are blocked.
 - Preview size is capped.
-- TextEdit opens only the generated preview.
+- Compression-bomb indicators are checked before previewing.
+- Encrypted files are not silently executed or extracted.
 
-The preview is stored under:
+Static inspection greatly reduces exposure, but no parser or viewer should be described as impossible to exploit.
 
-```text
-~/Library/Caches/FileSentry/previews/
-```
+## macOS checks
 
-Static inspection reduces risk, but no parser or viewer should be described as impossible to exploit.
+The macOS build checks for indicators including:
 
-## Update
+- extraction-path traversal
+- symbolic links
+- LaunchAgents / LaunchDaemons
+- launchd RunAtLoad / KeepAlive
+- login-item related commands
+- cron persistence
+- shell startup modifications
+- quarantine/Gatekeeper-related commands
+- executable permissions
+- executable scripts
+- downloader commands
+- compression-bomb indicators
 
-Re-run the installer:
+## Windows checks
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/zvzt/filesentry/main/install.sh | zsh
-```
+The Windows build checks for indicators including:
 
-## Uninstall
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/zvzt/filesentry/main/uninstall.sh | zsh
-```
+- extraction-path traversal
+- NTFS alternate-stream style names
+- symbolic links
+- Startup-folder targeting
+- Registry Run / RunOnce persistence
+- scheduled tasks
+- Windows services
+- WMI subscription persistence
+- encoded PowerShell
+- downloader / LOLBin commands
+- LNK / URL shortcuts
+- executable scripts and binaries
+- registry files
+- autorun.inf
+- compression-bomb indicators
 
 ## Dependencies
 
-No pip packages are required. FileSentry uses only Python's standard library and macOS TextEdit.
+No pip packages are required. Both builds use Python's standard library.
+
+## Uninstall macOS
+
+~~~bash
+curl -fsSL https://raw.githubusercontent.com/zvzt/filesentry/main/uninstall.sh | zsh
+~~~
+
+## Uninstall Windows
+
+~~~powershell
+irm https://raw.githubusercontent.com/zvzt/filesentry/main/windows/uninstall.ps1 | iex
+~~~
