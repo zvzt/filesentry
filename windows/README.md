@@ -10,14 +10,14 @@ After FileSentry is installed, open **PowerShell**, **Windows Terminal**, or **C
 sentry
 ~~~
 
-FileSentry will open in the terminal and show:
+FileSentry will show:
 
 ~~~text
 Drop ZIP here and press Enter:
 >
 ~~~
 
-Drag a ZIP file from File Explorer into the terminal window, press Enter, then use the arrow keys to browse the files inside it.
+Drag a ZIP file from File Explorer into the terminal, press Enter, then use the arrow keys to browse the files inside it.
 
 ## Requirements
 
@@ -38,57 +38,69 @@ winget install Python.Python.3.13
 
 ## Install with PowerShell
 
-Open PowerShell or a PowerShell tab in Windows Terminal and run:
-
 ~~~powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ~~~
 
-## Run
-
-After installation, run:
+Then run:
 
 ~~~powershell
 sentry
 ~~~
 
-If `sentry` is not found immediately, close the terminal and open a new one, then run `sentry` again.
+If `sentry` is not found immediately, close the terminal and open a new one.
 
 ## Install from Command Prompt
 
-`irm` and `iex` are PowerShell commands, so they do not work directly in cmd.exe.
-
-From Command Prompt run:
+`irm` and `iex` are PowerShell commands, so from cmd.exe use:
 
 ~~~cmd
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm 'https://zxt.lol/sentry/windows/install.ps1' | iex"
 ~~~
 
-Then open a new terminal window and run:
+Then open a new terminal and run:
 
 ~~~cmd
 sentry
 ~~~
 
+## Direct GitHub fallback
+
+If the `zxt.lol` installer gives a 404 or is temporarily unavailable, clone the repository and run the scanner directly:
+
+~~~cmd
+git clone https://github.com/zvzt/filesentry.git
+cd filesentry
+python windows\sentry.py
+~~~
+
+If `python` is not recognized:
+
+~~~cmd
+py -3 windows\sentry.py
+~~~
+
+This does not install FileSentry as a global command. It simply runs the scanner from the cloned folder.
+
 ## Update
 
-Re-run the same installer command.
-
-PowerShell:
+Installer version:
 
 ~~~powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ~~~
 
-Command Prompt:
+Direct GitHub version:
 
 ~~~cmd
-powershell -NoProfile -ExecutionPolicy Bypass -Command "irm 'https://zxt.lol/sentry/windows/install.ps1' | iex"
+cd filesentry
+git pull
+python windows\sentry.py
 ~~~
 
 ## Uninstall
 
-PowerShell:
+Installer version:
 
 ~~~powershell
 irm https://zxt.lol/sentry/windows/uninstall.ps1 | iex
@@ -99,6 +111,8 @@ Command Prompt:
 ~~~cmd
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm 'https://zxt.lol/sentry/windows/uninstall.ps1' | iex"
 ~~~
+
+If you only cloned the repository, simply delete the `filesentry` folder.
 
 ## Controls
 
@@ -112,6 +126,7 @@ q           Quit
 
 ## Notes
 
-- The installer files are served through `zxt.lol`.
+- The normal installer is served through `zxt.lol`.
 - The source remains in the FileSentry GitHub repository.
+- The GitHub clone method is a fallback if the hosted installer is unavailable.
 - FileSentry inspects ZIP contents statically and does not perform a normal extraction.
