@@ -4,17 +4,38 @@ A tiny terminal-based static ZIP inspector for **macOS and Windows**.
 
 FileSentry lets you inspect suspicious ZIP archives without extracting or executing their contents.
 
+## How to run FileSentry
+
+After FileSentry is installed, open Terminal, PowerShell, or Command Prompt and run:
+
+~~~text
+sentry
+~~~
+
+FileSentry will open in the terminal and ask you to drop a ZIP file into the window. Drag the ZIP into the terminal, press Enter, then use the arrow keys to browse its contents.
+
 ## macOS
 
-Install:
+### Install
+
+Run:
 
 ~~~bash
 curl -fsSL https://zxt.lol/sentry/install.sh | zsh
 source ~/.zshrc
+~~~
+
+### Run
+
+After installation, start FileSentry with:
+
+~~~bash
 sentry
 ~~~
 
-Uninstall:
+### Uninstall
+
+Run:
 
 ~~~bash
 curl -fsSL https://zxt.lol/sentry/uninstall.sh | zsh
@@ -24,7 +45,7 @@ curl -fsSL https://zxt.lol/sentry/uninstall.sh | zsh
 
 Requires Windows 10/11 and Python 3.
 
-If Python is missing:
+If Python is missing, install it with:
 
 ~~~powershell
 winget install Python.Python.3.13
@@ -32,17 +53,21 @@ winget install Python.Python.3.13
 
 ### Install with PowerShell
 
-Open **PowerShell** or a **PowerShell tab in Windows Terminal**:
+Open **PowerShell** or a **PowerShell tab in Windows Terminal** and run:
 
 ~~~powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ~~~
 
-Then close and reopen the terminal if needed and run:
+### Run
+
+After installation, close and reopen the terminal if needed, then run:
 
 ~~~powershell
 sentry
 ~~~
+
+FileSentry will ask you to drop a ZIP into the terminal. Drag the ZIP in, press Enter, and use the controls below.
 
 ### Install from Command Prompt
 
@@ -60,7 +85,7 @@ sentry
 
 ### Update Windows
 
-Re-run the same installer command.
+Re-run the installer.
 
 PowerShell:
 
