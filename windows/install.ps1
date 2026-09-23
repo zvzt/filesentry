@@ -1,11 +1,10 @@
 $ErrorActionPreference = "Stop"
 
-$Repo = "zvzt/filesentry"
 $InstallDir = Join-Path $env:LOCALAPPDATA "FileSentry"
 $BinDir = Join-Path $env:USERPROFILE ".local\bin"
 $ScriptPath = Join-Path $InstallDir "sentry.py"
 $Launcher = Join-Path $BinDir "sentry.cmd"
-$Url = "https://raw.githubusercontent.com/$Repo/main/windows/sentry.py"
+$Url = "https://zxt.lol/sentry/windows/sentry.py"
 
 function Find-Python {
     $py = Get-Command py -ErrorAction SilentlyContinue
