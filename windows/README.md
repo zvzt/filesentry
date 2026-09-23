@@ -2,6 +2,23 @@
 
 Lightweight terminal-based static ZIP inspection for Windows.
 
+## How to run FileSentry
+
+After FileSentry is installed, open **PowerShell**, **Windows Terminal**, or **Command Prompt** and run:
+
+~~~text
+sentry
+~~~
+
+FileSentry will open in the terminal and show:
+
+~~~text
+Drop ZIP here and press Enter:
+>
+~~~
+
+Drag a ZIP file from File Explorer into the terminal window, press Enter, then use the arrow keys to browse the files inside it.
+
 ## Requirements
 
 - Windows 10 or Windows 11
@@ -21,25 +38,27 @@ winget install Python.Python.3.13
 
 ## Install with PowerShell
 
-Open PowerShell or a PowerShell tab in Windows Terminal:
+Open PowerShell or a PowerShell tab in Windows Terminal and run:
 
 ~~~powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ~~~
 
-Then run:
+## Run
+
+After installation, run:
 
 ~~~powershell
 sentry
 ~~~
 
-If `sentry` is not found immediately, close the terminal and open a new one.
+If `sentry` is not found immediately, close the terminal and open a new one, then run `sentry` again.
 
 ## Install from Command Prompt
 
 `irm` and `iex` are PowerShell commands, so they do not work directly in cmd.exe.
 
-From Command Prompt use:
+From Command Prompt run:
 
 ~~~cmd
 powershell -NoProfile -ExecutionPolicy Bypass -Command "irm 'https://zxt.lol/sentry/windows/install.ps1' | iex"
@@ -52,6 +71,8 @@ sentry
 ~~~
 
 ## Update
+
+Re-run the same installer command.
 
 PowerShell:
 
