@@ -1,10 +1,9 @@
 #!/bin/zsh
 set -e
 
-REPO="zvzt/filesentry"
 BIN_DIR="$HOME/.local/bin"
 TARGET="$BIN_DIR/sentry"
-URL="https://raw.githubusercontent.com/$REPO/main/sentry.py"
+URL="https://zxt.lol/sentry/sentry.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "FileSentry requires Python 3."
