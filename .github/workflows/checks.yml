@@ -1,0 +1,47 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python syntax
+        run: python3 -m py_compile sentry.py
+      - name: Run macOS core tests
+        run: python3 tests/test_macos.py -v
+      - name: Check shell syntax
+        run: |
+          zsh -n install.sh
+          zsh -n uninstall.sh
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python syntax
+        shell: pwsh
+        run: py -3 -m py_compile windows/sentry.py
+      - name: Run Windows core tests
+        shell: pwsh
+        run: py -3 tests/test_windows.py -v
+      - name: Parse PowerShell installers
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          foreach ($file in @("windows/install.ps1","windows/uninstall.ps1")) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_.Message }
+              exit 1
+            }
+          }
