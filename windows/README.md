@@ -130,3 +130,7 @@ q           Quit
 - The source remains in the FileSentry GitHub repository.
 - The GitHub clone method is a fallback if the hosted installer is unavailable.
 - FileSentry inspects ZIP contents statically and does not perform a normal extraction.
+
+## License
+
+MIT — see [../LICENSE](../LICENSE).
