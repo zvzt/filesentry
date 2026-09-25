@@ -190,9 +190,10 @@ def read_limited(zf,info,limit):
 
 def scan_text(name,data,findings):
     text=data.decode("utf-8","replace")
-    lower=text.lower().replace("/","\\")
+    lower=text.lower()
+    path_lower=lower.replace("/","\\")
     for pattern,severity,category,reason in CONTENT_RULES:
-        if pattern in lower:
+        if pattern in lower or pattern in path_lower:
             add(findings,severity,category,name,reason,pattern)
 
 def extract_binary_strings(data):
