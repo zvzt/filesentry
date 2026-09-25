@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import atexit
 import curses
 import hashlib
 import os
@@ -7,11 +8,12 @@ import re
 import shlex
 import stat
 import subprocess
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
-VERSION="0.1.0"
+VERSION="0.1.1"
 MAX_PREVIEW=2*1024*1024
 MAX_BINARY_PREVIEW=256*1024
 MAX_SCAN_FILE=256*1024
@@ -65,6 +67,29 @@ class Finding:
 
 def clean(value):
     return str(value).replace("\n","\\n").replace("\r","\\r").replace("\t","\\t")
+
+def prepare_cache():
+    CACHE_DIR.mkdir(parents=True,exist_ok=True)
+    try:
+        os.chmod(CACHE_DIR,0o700)
+    except OSError:
+        pass
+
+def cleanup_previews():
+    try:
+        if not CACHE_DIR.exists():
+            return
+        for path in CACHE_DIR.glob("preview-*.txt"):
+            try:
+                os.chmod(path,0o600)
+            except OSError:
+                pass
+            try:
+                path.unlink()
+            except OSError:
+                pass
+    except OSError:
+        pass
 
 def dropped_path(raw):
     raw=raw.strip()
@@ -227,9 +252,8 @@ def plist_preview(data):
         return None
 
 def open_preview(zip_path,entry):
-    CACHE_DIR.mkdir(parents=True,exist_ok=True)
-    digest=hashlib.sha256((str(zip_path)+"|"+entry.name).encode()).hexdigest()[:16]
-    output=CACHE_DIR/f"preview-{digest}.txt"
+    prepare_cache()
+    output=None
     try:
         with zipfile.ZipFile(zip_path,"r") as zf:
             info=zf.getinfo(entry.name)
@@ -262,13 +286,27 @@ def open_preview(zip_path,entry):
         body="[Binary file converted to hexadecimal text]\n\n"+hex_dump(binary)
         if entry.size>MAX_BINARY_PREVIEW:
             body+=f"\n\n[Binary preview truncated at {MAX_BINARY_PREVIEW:,} bytes]"
+    fd=None
     try:
-        if output.exists():
-            os.chmod(output,0o600)
-        output.write_text(header+body,encoding="utf-8",errors="replace")
+        fd,name=tempfile.mkstemp(prefix="preview-",suffix=".txt",dir=CACHE_DIR)
+        output=Path(name)
+        with os.fdopen(fd,"w",encoding="utf-8",errors="replace") as handle:
+            fd=None
+            handle.write(header+body)
         os.chmod(output,0o400)
         subprocess.Popen(["open","-a","TextEdit",str(output)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     except Exception as exc:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        if output is not None:
+            try:
+                os.chmod(output,0o600)
+                output.unlink()
+            except OSError:
+                pass
         return f"Could not open TextEdit preview: {exc}"
     return f"Opened safe text preview: {clean(entry.name)}"
 
@@ -421,6 +459,9 @@ def main(stdscr):
         curses.curs_set(1)
 
 if __name__=="__main__":
+    prepare_cache()
+    cleanup_previews()
+    atexit.register(cleanup_previews)
     try:
         curses.wrapper(main)
     except KeyboardInterrupt:
