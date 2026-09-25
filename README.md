@@ -144,13 +144,16 @@ FileSentry performs static inspection only.
 
 - Archive contents are not executed.
 - It does not perform a normal ZIP extraction.
-- Selected text is copied into a generated `.txt` preview.
+- Selected text is copied into a generated `.txt` preview with a randomized temporary filename.
 - Selected binary data is rendered as hexadecimal text.
+- Preview files are cleaned at startup and normal exit; the macOS preview cache is private to the current user.
 - Symlink previews are blocked.
 - Preview size is capped.
 - Compression-bomb indicators are checked before previewing.
 - Encrypted files are not silently executed or extracted.
 - Archive paths attempting to escape the normal extraction directory are flagged.
+
+Preview files are never given the archive entry's original executable extension, and FileSentry does not launch archive contents directly.
 
 Static inspection reduces exposure, but no parser or viewer should be treated as impossible to exploit. Review findings and use normal security precautions with untrusted files.
 
