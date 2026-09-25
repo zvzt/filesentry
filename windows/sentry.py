@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import atexit
 import hashlib
 import msvcrt
 import os
@@ -7,11 +8,12 @@ import shlex
 import stat
 import subprocess
 import sys
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
-VERSION="0.1.0"
+VERSION="0.1.1"
 MAX_PREVIEW=2*1024*1024
 MAX_BINARY_PREVIEW=256*1024
 MAX_SCAN_FILE=384*1024
@@ -96,6 +98,21 @@ class Finding:
 
 def clean(value):
     return str(value).replace("\r","\\r").replace("\n","\\n").replace("\t","\\t")
+
+def prepare_cache():
+    CACHE_DIR.mkdir(parents=True,exist_ok=True)
+
+def cleanup_previews():
+    try:
+        if not CACHE_DIR.exists():
+            return
+        for path in CACHE_DIR.glob("preview-*.txt"):
+            try:
+                path.unlink()
+            except OSError:
+                pass
+    except OSError:
+        pass
 
 def clear():
     os.system("cls")
@@ -309,9 +326,8 @@ def hex_dump(data):
     return "\n".join(lines)
 
 def open_preview(zip_path,entry):
-    CACHE_DIR.mkdir(parents=True,exist_ok=True)
-    digest=hashlib.sha256((str(zip_path)+"|"+entry.name).encode()).hexdigest()[:16]
-    output=CACHE_DIR/f"preview-{digest}.txt"
+    prepare_cache()
+    output=None
     try:
         with zipfile.ZipFile(zip_path,"r") as zf:
             info=zf.getinfo(entry.name)
@@ -344,10 +360,25 @@ def open_preview(zip_path,entry):
         if entry.size>MAX_BINARY_PREVIEW:
             body+=f"\r\n\r\n[Binary preview truncated at {MAX_BINARY_PREVIEW:,} bytes]"
 
+    fd=None
     try:
-        output.write_text(header+body,encoding="utf-8",errors="replace")
+        fd,name=tempfile.mkstemp(prefix="preview-",suffix=".txt",dir=CACHE_DIR)
+        output=Path(name)
+        with os.fdopen(fd,"w",encoding="utf-8",errors="replace",newline="") as handle:
+            fd=None
+            handle.write(header+body)
         subprocess.Popen(["notepad.exe",str(output)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     except Exception as exc:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        if output is not None:
+            try:
+                output.unlink()
+            except OSError:
+                pass
         return f"Could not open Notepad preview: {exc}"
 
     return f"Opened safe text preview: {clean(entry.name)}"
@@ -504,6 +535,9 @@ def main():
             break
 
 if __name__=="__main__":
+    prepare_cache()
+    cleanup_previews()
+    atexit.register(cleanup_previews)
     try:
         main()
     except KeyboardInterrupt:
