@@ -3,7 +3,7 @@ set -e
 
 BIN_DIR="$HOME/.local/bin"
 TARGET="$BIN_DIR/sentry"
-URL="https://zxt.lol/sentry/sentry.py"
+URL="https://raw.githubusercontent.com/zvzt/filesentry/main/sentry.py"
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "FileSentry requires Python 3."
