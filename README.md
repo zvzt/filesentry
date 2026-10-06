@@ -134,6 +134,7 @@ If you only cloned the repository, nothing was installed system-wide; delete the
 Up / Down   Select a file
 Enter       Open a safe text preview
 f           View security findings
+d           Download full scan report
 r           Scan another ZIP
 q           Quit
 ```
@@ -147,6 +148,7 @@ FileSentry performs static inspection only.
 - Selected text is copied into a generated `.txt` preview with a randomized temporary filename.
 - Selected binary data is rendered as hexadecimal text.
 - Preview files are cleaned at startup and normal exit; the macOS preview cache is private to the current user.
+- Pressing `d` saves a complete plain-text scan report to the user's Downloads folder, including every archive entry and a separated risky/flagged-items section.
 - Symlink previews are blocked.
 - Preview size is capped.
 - Compression-bomb indicators are checked before previewing.
