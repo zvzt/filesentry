@@ -17,6 +17,17 @@ if ! command -v curl >/dev/null 2>&1; then
 fi
 
 mkdir -p "$BIN_DIR"
+
+echo "Checking for old FileSentry data..."
+if [[ -f "$TARGET" || -d "$HOME/Library/Caches/FileSentry" ]]; then
+    echo "Removing old FileSentry installation/data..."
+    rm -f "$TARGET"
+    rm -rf "$HOME/Library/Caches/FileSentry"
+    echo "Old FileSentry data removed."
+else
+    echo "No old FileSentry data found."
+fi
+
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 
@@ -32,6 +43,6 @@ if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
     echo "Added ~/.local/bin to PATH."
 fi
 
-echo "FileSentry installed."
+echo "FileSentry installed fresh."
 echo "Run: source ~/.zshrc"
 echo "Then: sentry"
