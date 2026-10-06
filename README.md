@@ -21,11 +21,19 @@ Drop a ZIP file into the terminal, press Enter, then use the arrow keys to brows
 - macOS
 - Python 3
 
-### Install
+### Install / Update
+
+**One command — installs or updates FileSentry to the latest version:**
 
 ```bash
 curl -fsSL https://zxt.lol/sentry/install.sh | zsh
+```
+
+Then run:
+
+```bash
 source ~/.zshrc
+sentry
 ```
 
 The installer checks for an existing FileSentry installation, removes the old executable and cached preview data, then downloads and installs the current version. Scan reports in `~/Downloads` are not removed.
@@ -52,19 +60,21 @@ If Python is missing:
 winget install Python.Python.3.13
 ```
 
-### Install with PowerShell
+### Install / Update with PowerShell
+
+**One command — installs or updates FileSentry to the latest version:**
 
 ```powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ```
 
-The installer checks for an existing FileSentry installation, removes the old installation and cached preview data, then downloads and installs the current version. Scan reports are not removed.
-
-Then close and reopen the terminal if needed and run:
+Then open a new terminal if needed and run:
 
 ```powershell
 sentry
 ```
+
+The installer checks for an existing FileSentry installation, removes the old installation and cached preview data, then downloads and installs the current version. Scan reports are not removed.
 
 ### Install from Command Prompt
 
