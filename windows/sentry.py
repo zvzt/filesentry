@@ -393,6 +393,43 @@ def fmt_size(size):
         return f"{size/1024/1024:.1f} MB"
     return f"{size/1024/1024/1024:.1f} GB"
 
+
+def export_report(path,entries,findings,risk,digest):
+    downloads=Path(os.environ.get("USERPROFILE",str(Path.home())))/"Downloads"
+    downloads.mkdir(parents=True,exist_ok=True)
+    stamp=__import__("datetime").datetime.now().strftime("%Y%m%d-%H%M%S")
+    output=downloads/f"FileSentry-report-{stamp}.txt"
+    lines=[
+        "FileSentry",
+        "==========",
+        f"Archive: {path}",
+        f"Risk: {risk}",
+        f"Files: {len(entries)}",
+        f"Findings: {len(findings)}",
+        f"SHA256: {digest}",
+        "",
+        "ARCHIVE CONTENTS",
+        "================",
+    ]
+    for entry in entries:
+        kind={"directory":"DIR","symlink":"LINK","zip":"ZIP","text":"TXT","script":"SCRIPT","executable":"EXE","shortcut":"LNK"}.get(entry.kind,"FILE")
+        lines.append(f"{kind:<7} {fmt_size(entry.size):>10}  {clean(entry.name)}")
+    lines.extend(["","========================================","RISKY / FLAGGED ITEMS","========================================"])
+    if not findings:
+        lines.append("No indicators were detected by the current static rules.")
+    else:
+        for finding in findings:
+            lines.extend([f"[{finding.severity}] {finding.category}",f"File: {clean(finding.file)}",clean(finding.reason)])
+            if finding.evidence:
+                lines.append(f"Evidence: {clean(finding.evidence)}")
+            lines.append("")
+    try:
+        output.write_text("\n".join(lines)+"\n",encoding="utf-8")
+        subprocess.Popen(["notepad.exe",str(output)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+        return f"Report downloaded: {output}"
+    except Exception as exc:
+        return f"Report export failed: {exc}"
+
 def get_key():
     char=msvcrt.getwch()
     if char in ("\x00","\xe0"):
@@ -468,7 +505,7 @@ def archive_ui(path,entries,findings,risk,digest):
         print("  FileSentry")
         print(f"  {path.name}   Risk: {risk}   Files: {len(entries)}   Findings: {len(findings)}")
         print(f"  SHA256: {digest}")
-        print("  Up/Down select   Enter preview   f findings   r new ZIP   q quit")
+        print("  Up/Down select   Enter preview   f findings   d download report   r new ZIP   q quit")
         print()
         list_height=max(1,height-8)
         if entries:
@@ -493,6 +530,9 @@ def archive_ui(path,entries,findings,risk,digest):
             return "reload"
         if key=="f":
             show_findings(findings)
+            continue
+        if key=="d":
+            status=export_report(path,entries,findings,risk,digest)
             continue
         if key=="DOWN" and selected<len(entries)-1:
             selected+=1
