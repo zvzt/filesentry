@@ -35,6 +35,22 @@ if (-not $Python) {
     exit 1
 }
 
+Write-Host "Checking for old FileSentry data..."
+$OldDataFound = (Test-Path $InstallDir) -or (Test-Path $Launcher)
+
+if ($OldDataFound) {
+    Write-Host "Removing old FileSentry installation/data..."
+    if (Test-Path $Launcher) {
+        Remove-Item -Force $Launcher
+    }
+    if (Test-Path $InstallDir) {
+        Remove-Item -Recurse -Force $InstallDir
+    }
+    Write-Host "Old FileSentry data removed."
+} else {
+    Write-Host "No old FileSentry data found."
+}
+
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 
@@ -86,7 +102,7 @@ if (($env:Path.Split(";")) -notcontains $BinDir) {
 }
 
 Write-Host ""
-Write-Host "FileSentry installed."
+Write-Host "FileSentry installed fresh."
 Write-Host "Run:"
 Write-Host "  sentry"
 Write-Host ""
