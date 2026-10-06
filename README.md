@@ -28,6 +28,8 @@ curl -fsSL https://zxt.lol/sentry/install.sh | zsh
 source ~/.zshrc
 ```
 
+The installer checks for an existing FileSentry installation, removes the old executable and cached preview data, then downloads and installs the current version. Scan reports in `~/Downloads` are not removed.
+
 ### Run
 
 ```bash
@@ -55,6 +57,8 @@ winget install Python.Python.3.13
 ```powershell
 irm https://zxt.lol/sentry/windows/install.ps1 | iex
 ```
+
+The installer checks for an existing FileSentry installation, removes the old installation and cached preview data, then downloads and installs the current version. Scan reports are not removed.
 
 Then close and reopen the terminal if needed and run:
 
