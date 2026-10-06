@@ -318,6 +318,42 @@ def fmt_size(size):
         return f"{size/1024/1024:.1f} MB"
     return f"{size/1024/1024/1024:.1f} GB"
 
+
+def export_report(path,entries,findings,risk):
+    downloads=Path.home()/"Downloads"
+    downloads.mkdir(parents=True,exist_ok=True)
+    stamp=__import__("datetime").datetime.now().strftime("%Y%m%d-%H%M%S")
+    output=downloads/f"FileSentry-report-{stamp}.txt"
+    lines=[
+        "FileSentry",
+        "==========",
+        f"Archive: {path}",
+        f"Risk: {risk}",
+        f"Files: {len(entries)}",
+        f"Findings: {len(findings)}",
+        "",
+        "ARCHIVE CONTENTS",
+        "================",
+    ]
+    for entry in entries:
+        kind={"directory":"DIR","symlink":"LINK","zip":"ZIP","text":"TXT"}.get(entry.kind,"FILE")
+        lines.append(f"{kind:<4} {fmt_size(entry.size):>10}  {clean(entry.name)}")
+    lines.extend(["","========================================","RISKY / FLAGGED ITEMS","========================================"])
+    if not findings:
+        lines.append("No indicators were detected by the current static rules.")
+    else:
+        for finding in findings:
+            lines.extend([f"[{finding.severity}] {finding.category}",f"File: {clean(finding.file)}",clean(finding.reason)])
+            if finding.evidence:
+                lines.append(f"Evidence: {clean(finding.evidence)}")
+            lines.append("")
+    try:
+        output.write_text("\n".join(lines)+"\n",encoding="utf-8")
+        subprocess.Popen(["open","-a","TextEdit",str(output)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+        return f"Report downloaded: {output}"
+    except Exception as exc:
+        return f"Report export failed: {exc}"
+
 def safe_add(win,y,x,text,attr=0):
     h,w=win.getmaxyx()
     if y<0 or y>=h or x>=w:
@@ -394,7 +430,7 @@ def archive_ui(stdscr,path,entries,findings,risk):
         h,_=stdscr.getmaxyx()
         safe_add(stdscr,0,2,"FileSentry",curses.A_BOLD)
         safe_add(stdscr,1,2,f"{path.name}   Risk: {risk}   Files: {len(entries)}   Findings: {len(findings)}")
-        safe_add(stdscr,2,2,"Up/Down select   Enter preview   f findings   r new ZIP   q quit")
+        safe_add(stdscr,2,2,"Up/Down select   Enter preview   f findings   d download report   r new ZIP   q quit")
         list_top=4
         list_height=max(1,h-7)
         if selected<top:
@@ -417,6 +453,9 @@ def archive_ui(stdscr,path,entries,findings,risk):
             return "reload"
         if key==ord("f"):
             show_findings(stdscr,findings)
+            continue
+        if key==ord("d"):
+            status=export_report(path,entries,findings,risk)
             continue
         if key==curses.KEY_DOWN and selected<len(entries)-1:
             selected+=1
